@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dictionnaire</string>
+    <string name="about">A propos</string>
+    <string name="clear_history">Effacer l\'historique</string>
+    <string name="exit">Quitter</string>
+    <string name="settings">Options</string>
+</resources>

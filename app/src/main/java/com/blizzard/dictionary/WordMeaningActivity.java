@@ -30,7 +30,7 @@ public class WordMeaningActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.mToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("English words");
+        getSupportActionBar().setTitle(R.string.app_name);
 
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
 
