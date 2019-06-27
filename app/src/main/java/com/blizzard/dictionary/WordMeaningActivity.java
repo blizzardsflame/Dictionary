@@ -1,5 +1,9 @@
 package com.blizzard.dictionary;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -9,8 +13,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.blizzard.dictionary.fragments.FragmentAntonyms;
 import com.blizzard.dictionary.fragments.FragmentDefinition;
@@ -19,18 +25,123 @@ import com.blizzard.dictionary.fragments.FragmentSynonyms;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WordMeaningActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
+
+    String enWord;
+    DatabaseHelper myDbHelper;
+    Cursor c = null;
+
+    public String enDefinition;
+    public String example;
+    public String synonyms;
+    public String antonyms;
+
+    TextToSpeech tts;
+
+    boolean startedFromShare=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_word_meaning);
 
+        //received values
+        Bundle bundle = getIntent().getExtras();
+        enWord= bundle.getString("en_word");
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                startedFromShare=true;
+
+                if (sharedText != null) {
+                    Pattern p = Pattern.compile("[A-Za-z ]{1,25}");
+                    Matcher m = p.matcher(sharedText);
+
+                    if(m.matches())
+                    {
+                        enWord=sharedText;
+                    }
+                    else
+                    {
+                        enWord="Not Available";
+                    }
+
+                }
+
+            }
+        }
+
+
+
+        myDbHelper = new DatabaseHelper(this);
+
+        try {
+            myDbHelper.openDataBase();
+        } catch (SQLException sqle) {
+            throw sqle;
+        }
+
+
+        c = myDbHelper.getMeaning(enWord);
+
+        if (c.moveToFirst()) {
+
+            enDefinition= c.getString(c.getColumnIndex("en_definition"));
+            example=c.getString(c.getColumnIndex("example"));
+            synonyms=c.getString(c.getColumnIndex("synonyms"));
+            antonyms=c.getString(c.getColumnIndex("antonyms"));
+
+            myDbHelper.insertHistory(enWord);
+
+        }
+
+        else
+        {
+            enWord="Not Available";
+        }
+
+
+
+
+        ImageButton btnSpeak = findViewById(R.id.btnSpeak);
+
+
+        btnSpeak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tts = new TextToSpeech(WordMeaningActivity.this, new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if(status == TextToSpeech.SUCCESS){
+                            int result=tts.setLanguage(Locale.getDefault());
+                            if(result==TextToSpeech.LANG_MISSING_DATA || result==TextToSpeech.LANG_NOT_SUPPORTED){
+                                Log.e("error", "This Language is not supported");
+                            }
+                            else{
+                                tts.speak(enWord, TextToSpeech.QUEUE_FLUSH, null);
+                            }
+                        }
+                        else
+                            Log.e("error", "Initialization Failed!");
+                    }
+                });
+            }
+        });
+
         Toolbar toolbar = findViewById(R.id.mToolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.app_name);
+        getSupportActionBar().setTitle(enWord);
 
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
 
@@ -101,8 +212,18 @@ public class WordMeaningActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){ //press the back button
-            onBackPressed();
+        if (item.getItemId() == android.R.id.home) // Press Back Icon
+        {
+            if(startedFromShare)
+            {
+                Intent intent = new Intent(this,MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+            else
+            {
+                onBackPressed();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
