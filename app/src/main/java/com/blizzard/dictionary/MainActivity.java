@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
+
     SearchView search;
 
     static DatabaseHelper myDbHelper;
@@ -48,50 +49,61 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        search =  findViewById(R.id.search_view);
+        search = (SearchView) findViewById(R.id.search_view);
+
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 search.setIconified(false);
+
             }
         });
 
+
         myDbHelper = new DatabaseHelper(this);
 
-        if(myDbHelper.checkDataBase()){
+        if (myDbHelper.checkDataBase()) {
             openDatabase();
-        }else{
+
+        } else {
             LoadDataBaseAsync task = new LoadDataBaseAsync(MainActivity.this);
             task.execute();
         }
-        //setup SimpleCursorAdapter
 
-        final String[] from = new String[] {"en_word"};
-        final int[] to = new int[] {R.id.suggestion_text};
 
-        suggestionAdapter = new SimpleCursorAdapter(MainActivity.this
-        , R.layout.suggestion_row, null, from, to, 0){
+        // setup SimpleCursorAdapter
+
+        final String[] from = new String[]{"en_word"};
+        final int[] to = new int[]{R.id.suggestion_text};
+
+        suggestionAdapter = new SimpleCursorAdapter(MainActivity.this,
+                R.layout.suggestion_row, null, from, to, 0) {
             @Override
             public void changeCursor(Cursor cursor) {
-                super.changeCursor(cursor);
+                super.swapCursor(cursor);
             }
+
         };
+
         search.setSuggestionsAdapter(suggestionAdapter);
+
 
         search.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
-            public boolean onSuggestionSelect(int i) {
-                //Add clicked text to search box
+            public boolean onSuggestionClick(int position) {
+
+                // Add clicked text to search box
                 CursorAdapter ca = search.getSuggestionsAdapter();
                 Cursor cursor = ca.getCursor();
-                cursor.moveToPosition(i);
+                cursor.moveToPosition(position);
                 String clicked_word = cursor.getString(cursor.getColumnIndex("en_word"));
                 search.setQuery(clicked_word, false);
 
-                //search.setQuery("", false);
+                //search.setQuery("",false);
+
                 search.clearFocus();
                 search.setFocusable(false);
 
@@ -100,55 +112,48 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putString("en_word", clicked_word);
                 intent.putExtras(bundle);
                 startActivity(intent);
+
                 return true;
             }
 
             @Override
-            public boolean onSuggestionClick(int i) {
+            public boolean onSuggestionSelect(int position) {
+                // Your code here
                 return true;
             }
         });
 
+
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query)
-            {
+            public boolean onQueryTextSubmit(String query) {
 
-                String text =  search.getQuery().toString();
+                String text = search.getQuery().toString();
 
                 Pattern p = Pattern.compile("[A-Za-z \\-.]{1,25}");
                 Matcher m = p.matcher(text);
 
-                if(m.matches())
-                {
+                if (m.matches()) {
                     Cursor c = myDbHelper.getMeaning(text);
 
-                    if(c.getCount()==0)
-                    {
+                    if (c.getCount() == 0) {
                         showAlertDialog();
-                    }
-
-                    else
-                    {
+                    } else {
                         //search.setQuery("",false);
                         search.clearFocus();
                         search.setFocusable(false);
 
                         Intent intent = new Intent(MainActivity.this, WordMeaningActivity.class);
                         Bundle bundle = new Bundle();
-                        bundle.putString("en_word",text);
+                        bundle.putString("en_word", text);
                         intent.putExtras(bundle);
                         startActivity(intent);
 
                     }
 
-                }
-
-                else
-                {
+                } else {
                     showAlertDialog();
                 }
-
 
 
                 return false;
@@ -157,14 +162,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(final String s) {
-
                 search.setIconifiedByDefault(false); //Give Suggestion list margins
 
                 Pattern p = Pattern.compile("[A-Za-z \\-.]{1,25}");
                 Matcher m = p.matcher(s);
 
-                if(m.matches()) {
-                    Cursor cursorSuggestion=myDbHelper.getSuggestions(s);
+                if (m.matches()) {
+                    Cursor cursorSuggestion = myDbHelper.getSuggestions(s);
                     suggestionAdapter.changeCursor(cursorSuggestion);
                 }
 
@@ -174,10 +178,11 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        emptyHistory = findViewById(R.id.empty_history);
+
+        emptyHistory = (RelativeLayout) findViewById(R.id.empty_history);
 
         //recycler View
-        recyclerView = findViewById(R.id.recycler_view_history);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_history);
         layoutManager = new LinearLayoutManager(MainActivity.this);
 
         recyclerView.setLayoutManager(layoutManager);
@@ -186,29 +191,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected static void openDatabase(){
-        try{
+
+    protected static void openDatabase() {
+        try {
             myDbHelper.openDataBase();
-            databaseOpened=true;
-        }catch (SQLException e){
+            databaseOpened = true;
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void fetch_history()
-    {
-        historyList=new ArrayList<>();
-        historyAdapter = new RecyclerViewAdapterHistory(this,historyList);
+    private void fetch_history() {
+        historyList = new ArrayList<>();
+        historyAdapter = new RecyclerViewAdapterHistory(this, historyList);
         recyclerView.setAdapter(historyAdapter);
 
         History h;
 
-        if(databaseOpened)
-        {
-            cursorHistory=myDbHelper.getHistory();
+        if (databaseOpened) {
+            cursorHistory = myDbHelper.getHistory();
             if (cursorHistory.moveToFirst()) {
                 do {
-                    h= new History(cursorHistory.getString(cursorHistory.getColumnIndex("word")),cursorHistory.getString(cursorHistory.getColumnIndex("en_definition")));
+                    h = new History(cursorHistory.getString(cursorHistory.getColumnIndex("word")), cursorHistory.getString(cursorHistory.getColumnIndex("en_definition")));
                     historyList.add(h);
                 }
                 while (cursorHistory.moveToNext());
@@ -218,19 +222,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        if (historyAdapter.getItemCount() == 0)
-        {
+        if (historyAdapter.getItemCount() == 0) {
             emptyHistory.setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             emptyHistory.setVisibility(View.GONE);
         }
     }
 
-    private void showAlertDialog()
-    {
-        search.setQuery("",false);
+    private void showAlertDialog() {
+        search.setQuery("", false);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
         builder.setTitle("Word Not Found");
@@ -260,20 +260,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu_main; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
+
         if (id == R.id.action_exit) {
             System.exit(0);
             return true;
@@ -300,8 +305,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
+
+
 }

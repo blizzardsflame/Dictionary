@@ -22,18 +22,17 @@ public class FragmentExample extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-       //Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_definition, container, false);//Inflate Layout
 
-        Context context=getActivity();
+        Context context = getActivity();
 
         TextView text = (TextView) view.findViewById(R.id.textViewD);//Find textView Id
 
-        String example= ((WordMeaningActivity)context).example;
+        String example = ((WordMeaningActivity) context).example;
         text.setText(example);
 
-        if(example==null)
-        {
+        if (example == null) {
             text.setText("No Example found");
         }
 

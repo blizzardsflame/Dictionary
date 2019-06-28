@@ -22,17 +22,16 @@ public class FragmentDefinition extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-       //Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_definition, container, false);//Inflate Layout
 
-        Context context=getActivity();
+        Context context = getActivity();
         TextView text = (TextView) view.findViewById(R.id.textViewD);
 
-        String en_definition= ((WordMeaningActivity)context).enDefinition;
+        String en_definition = ((WordMeaningActivity) context).enDefinition;
 
         text.setText(en_definition);
-        if(en_definition==null)
-        {
+        if (en_definition == null) {
             text.setText("No definition found");
         }
 

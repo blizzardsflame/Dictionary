@@ -22,19 +22,17 @@ public class FragmentAntonyms extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-       //Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_definition, container, false);//Inflate Layout
 
-        Context context=getActivity();
+        Context context = getActivity();
         TextView text = (TextView) view.findViewById(R.id.textViewD);//Find textView Id
-        String antonyms= ((WordMeaningActivity)context).antonyms;
-        if(antonyms!=null)
-        {
+        String antonyms = ((WordMeaningActivity) context).antonyms;
+        if (antonyms != null) {
             antonyms = antonyms.replaceAll(",", ",\n");
             text.setText(antonyms);
         }
-        if(antonyms==null)
-        {
+        if (antonyms == null) {
             text.setText("No antonyms found");
         }
 

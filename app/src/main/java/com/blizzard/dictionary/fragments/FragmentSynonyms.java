@@ -22,21 +22,19 @@ public class FragmentSynonyms extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-       //Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_definition, container, false);//Inflate Layout
 
-        Context context=getActivity();
+        Context context = getActivity();
         TextView text = (TextView) view.findViewById(R.id.textViewD);//Find textView Id
 
-        String synonyms= ((WordMeaningActivity)context).synonyms;
+        String synonyms = ((WordMeaningActivity) context).synonyms;
 
-        if(synonyms!=null)
-        {
+        if (synonyms != null) {
             synonyms = synonyms.replaceAll(",", ",\n");
             text.setText(synonyms);
         }
-        if(synonyms==null)
-        {
+        if (synonyms == null) {
             text.setText("No synonyms found");
         }
 

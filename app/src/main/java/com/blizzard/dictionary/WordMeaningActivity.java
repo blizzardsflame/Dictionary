@@ -44,7 +44,7 @@ public class WordMeaningActivity extends AppCompatActivity {
 
     TextToSpeech tts;
 
-    boolean startedFromShare=false;
+    boolean startedFromShare = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class WordMeaningActivity extends AppCompatActivity {
 
         //received values
         Bundle bundle = getIntent().getExtras();
-        enWord= bundle.getString("en_word");
+        enWord = bundle.getString("en_word");
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -62,26 +62,22 @@ public class WordMeaningActivity extends AppCompatActivity {
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                startedFromShare=true;
+                startedFromShare = true;
 
                 if (sharedText != null) {
                     Pattern p = Pattern.compile("[A-Za-z ]{1,25}");
                     Matcher m = p.matcher(sharedText);
 
-                    if(m.matches())
-                    {
-                        enWord=sharedText;
-                    }
-                    else
-                    {
-                        enWord="Not Available";
+                    if (m.matches()) {
+                        enWord = sharedText;
+                    } else {
+                        enWord = "Not Available";
                     }
 
                 }
 
             }
         }
-
 
 
         myDbHelper = new DatabaseHelper(this);
@@ -97,21 +93,16 @@ public class WordMeaningActivity extends AppCompatActivity {
 
         if (c.moveToFirst()) {
 
-            enDefinition= c.getString(c.getColumnIndex("en_definition"));
-            example=c.getString(c.getColumnIndex("example"));
-            synonyms=c.getString(c.getColumnIndex("synonyms"));
-            antonyms=c.getString(c.getColumnIndex("antonyms"));
+            enDefinition = c.getString(c.getColumnIndex("en_definition"));
+            example = c.getString(c.getColumnIndex("example"));
+            synonyms = c.getString(c.getColumnIndex("synonyms"));
+            antonyms = c.getString(c.getColumnIndex("antonyms"));
 
             myDbHelper.insertHistory(enWord);
 
+        } else {
+            enWord = "Not Available";
         }
-
-        else
-        {
-            enWord="Not Available";
-        }
-
-
 
 
         ImageButton btnSpeak = findViewById(R.id.btnSpeak);
@@ -123,16 +114,14 @@ public class WordMeaningActivity extends AppCompatActivity {
                 tts = new TextToSpeech(WordMeaningActivity.this, new TextToSpeech.OnInitListener() {
                     @Override
                     public void onInit(int status) {
-                        if(status == TextToSpeech.SUCCESS){
-                            int result=tts.setLanguage(Locale.getDefault());
-                            if(result==TextToSpeech.LANG_MISSING_DATA || result==TextToSpeech.LANG_NOT_SUPPORTED){
+                        if (status == TextToSpeech.SUCCESS) {
+                            int result = tts.setLanguage(Locale.getDefault());
+                            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                                 Log.e("error", "This Language is not supported");
-                            }
-                            else{
+                            } else {
                                 tts.speak(enWord, TextToSpeech.QUEUE_FLUSH, null);
                             }
-                        }
-                        else
+                        } else
                             Log.e("error", "Initialization Failed!");
                     }
                 });
@@ -147,7 +136,7 @@ public class WordMeaningActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.tab_viewpager);
 
-        if(viewPager != null){
+        if (viewPager != null) {
             setupViewPager(viewPager);
         }
 
@@ -172,14 +161,15 @@ public class WordMeaningActivity extends AppCompatActivity {
         });
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter{
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList();
         private final List<String> mFragmentTitleList = new ArrayList();
 
-        ViewPagerAdapter(FragmentManager manager){
+        ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
-        void add(Fragment fragment,String title){
+
+        void add(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }
@@ -203,7 +193,7 @@ public class WordMeaningActivity extends AppCompatActivity {
 
     public void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.add(new FragmentDefinition(),"Definition");
+        adapter.add(new FragmentDefinition(), "Definition");
         adapter.add(new FragmentSynonyms(), "Synonyms");
         adapter.add(new FragmentAntonyms(), "Antonyms");
         adapter.add(new FragmentExample(), "Example");
@@ -214,14 +204,11 @@ public class WordMeaningActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) // Press Back Icon
         {
-            if(startedFromShare)
-            {
-                Intent intent = new Intent(this,MainActivity.class);
+            if (startedFromShare) {
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-            }
-            else
-            {
+            } else {
                 onBackPressed();
             }
         }

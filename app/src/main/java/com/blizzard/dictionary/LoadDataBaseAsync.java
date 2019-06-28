@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 
 import java.io.IOException;
 
-public class LoadDataBaseAsync extends AsyncTask <Void,Void,Boolean> {
+public class LoadDataBaseAsync extends AsyncTask<Void, Void, Boolean> {
     private Context context;
     private AlertDialog alertDialog;
     private DatabaseHelper myDbHelper;
 
-    public  LoadDataBaseAsync(Context context){
+    public LoadDataBaseAsync(Context context) {
         this.context = context;
     }
 
@@ -36,9 +36,9 @@ public class LoadDataBaseAsync extends AsyncTask <Void,Void,Boolean> {
     @Override
     protected Boolean doInBackground(Void... voids) {
         myDbHelper = new DatabaseHelper(context);
-        try{
+        try {
             myDbHelper.createDataBase();
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new Error("Database was not created");
         }
         myDbHelper.close();

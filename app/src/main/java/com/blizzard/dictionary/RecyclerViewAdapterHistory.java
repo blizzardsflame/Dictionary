@@ -22,7 +22,7 @@ public class RecyclerViewAdapterHistory extends RecyclerView.Adapter<RecyclerVie
         this.context = context;
     }
 
-    public  class HistoryViewHolder extends RecyclerView.ViewHolder {
+    public class HistoryViewHolder extends RecyclerView.ViewHolder {
         TextView enWord;
         TextView enDef;
 
@@ -51,7 +51,7 @@ public class RecyclerViewAdapterHistory extends RecyclerView.Adapter<RecyclerVie
 
 
     @Override
-    public HistoryViewHolder onCreateViewHolder(ViewGroup parent,int viewType) {
+    public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item_layout, parent, false);
         return new HistoryViewHolder(view);
     }

@@ -11,7 +11,8 @@ import android.view.View;
 import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
-DatabaseHelper myDbHelper;
+    DatabaseHelper myDbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +40,7 @@ DatabaseHelper myDbHelper;
         });
     }
 
-    private void showAlertDialog()
-    {
+    private void showAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this, R.style.MyDialogTheme);
         builder.setTitle("Are you sure?");
         builder.setMessage("All the history will be deleted");
@@ -70,7 +70,7 @@ DatabaseHelper myDbHelper;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home){ //Press back icon
+        if (item.getItemId() == android.R.id.home) { //Press back icon
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
